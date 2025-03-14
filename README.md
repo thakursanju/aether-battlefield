@@ -1,6 +1,6 @@
 # Aether Arena - ETHSF 2025 Hackathon Demo
 
-**A Decentralized Esports Platform Demo Inspired by Reactive Network, ZetaChain, and Gemmi.ai**
+**A Decentralized Esports Platform Demo Inspired by Reactive Network, ZetaChain, swallow project , the lovelace project and Gemmi.ai**
 
 **Created by:** Khushvinder Thakur (19, India)
 
