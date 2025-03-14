@@ -1,6 +1,7 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import { Progress } from '@/components/ui/progress';
 
 export interface TournamentCardProps {
   id: string;
@@ -35,6 +36,59 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
     live: 'bg-green-100 text-green-700',
     completed: 'bg-yellow-100 text-yellow-700',
   };
+
+  // Calculate time remaining for upcoming tournaments
+  const [timeRemaining, setTimeRemaining] = useState<string | null>(null);
+  const [progress, setProgress] = useState<number>(0);
+  
+  useEffect(() => {
+    // Only set up countdown for upcoming tournaments
+    if (status !== 'upcoming') return;
+    
+    const tournamentDate = new Date(date);
+    const now = new Date();
+    
+    // Calculate initial time remaining
+    const updateCountdown = () => {
+      const now = new Date();
+      const timeDiff = tournamentDate.getTime() - now.getTime();
+      
+      if (timeDiff <= 0) {
+        setTimeRemaining('Starting soon!');
+        setProgress(100);
+        return;
+      }
+      
+      // Calculate days, hours, minutes
+      const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+      
+      // Format the countdown text
+      let countdownText = '';
+      if (days > 0) {
+        countdownText = `${days}d ${hours}h ${minutes}m`;
+      } else if (hours > 0) {
+        countdownText = `${hours}h ${minutes}m`;
+      } else {
+        countdownText = `${minutes}m`;
+      }
+      
+      setTimeRemaining(countdownText);
+      
+      // Calculate progress (inverse - closer to date = higher progress)
+      // Assuming 30 days is the max display window
+      const maxWindow = 30 * 24 * 60 * 60 * 1000; // 30 days in ms
+      const progressValue = Math.min(100, Math.max(0, 100 - (timeDiff / maxWindow) * 100));
+      setProgress(progressValue);
+    };
+    
+    // Update immediately and then every minute
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 60000);
+    
+    return () => clearInterval(interval);
+  }, [date, status]);
 
   return (
     <div
@@ -75,6 +129,25 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
           <div className="text-sm text-muted-foreground">{date}</div>
           <div className="text-sm">{participants.current}/{participants.max} Players</div>
         </div>
+        
+        {/* Add countdown for upcoming tournaments */}
+        {status === 'upcoming' && timeRemaining && (
+          <div className="mb-4">
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-xs text-muted-foreground">Starts in</span>
+              <span className="text-xs font-medium">{timeRemaining}</span>
+            </div>
+            <Progress value={progress} className="h-1.5" />
+          </div>
+        )}
+        
+        {/* For live tournaments, show a pulsing indicator */}
+        {status === 'live' && (
+          <div className="mb-4 flex items-center">
+            <span className="h-2.5 w-2.5 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+            <span className="text-sm text-green-600 font-medium">Tournament in progress</span>
+          </div>
+        )}
         
         <div className="flex items-center justify-between">
           <div>
