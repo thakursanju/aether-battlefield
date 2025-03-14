@@ -13,7 +13,7 @@ const allTournaments: TournamentCardProps[] = [
     game: 'League of Legends',
     prize: '$50,000',
     entryFee: '0.1 ETH',
-    date: 'May 15, 2023',
+    date: 'May 15, 2025',
     status: 'upcoming',
     participants: { current: 128, max: 256 },
     image: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2070&auto=format&fit=crop'
@@ -24,7 +24,7 @@ const allTournaments: TournamentCardProps[] = [
     game: 'Fortnite',
     prize: '$25,000',
     entryFee: '0.05 ETH',
-    date: 'Apr 28, 2023',
+    date: 'Apr 28, 2025',
     status: 'live',
     participants: { current: 75, max: 100 },
     image: 'https://images.unsplash.com/photo-1580327344181-c1163234e5a0?q=80&w=2071&auto=format&fit=crop'
@@ -34,7 +34,7 @@ const allTournaments: TournamentCardProps[] = [
     title: 'CS:GO Pro Circuit',
     game: 'Counter-Strike',
     prize: '$35,000',
-    date: 'Apr 10, 2023',
+    date: 'Apr 10, 2025',
     status: 'completed',
     participants: { current: 32, max: 32 },
     image: 'https://images.unsplash.com/photo-1548686304-89d188a80029?q=80&w=2030&auto=format&fit=crop'
@@ -45,7 +45,7 @@ const allTournaments: TournamentCardProps[] = [
     game: 'Valorant',
     prize: '$30,000',
     entryFee: '0.08 ETH',
-    date: 'May 22, 2023',
+    date: 'May 22, 2025',
     status: 'upcoming',
     participants: { current: 56, max: 64 },
     image: 'https://images.unsplash.com/photo-1515462277126-2dd0c162007a?q=80&w=2070&auto=format&fit=crop'
@@ -56,7 +56,7 @@ const allTournaments: TournamentCardProps[] = [
     game: 'Apex Legends',
     prize: '$20,000',
     entryFee: '0.04 ETH',
-    date: 'Apr 30, 2023',
+    date: 'Apr 30, 2025',
     status: 'live',
     participants: { current: 60, max: 60 },
     image: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=1947&auto=format&fit=crop'
@@ -66,7 +66,7 @@ const allTournaments: TournamentCardProps[] = [
     title: 'Rocket League Championship',
     game: 'Rocket League',
     prize: '$15,000',
-    date: 'Apr 5, 2023',
+    date: 'Apr 5, 2025',
     status: 'completed',
     participants: { current: 16, max: 16 },
     image: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2071&auto=format&fit=crop'
@@ -77,7 +77,7 @@ const allTournaments: TournamentCardProps[] = [
     game: 'Dota 2',
     prize: '$100,000',
     entryFee: '0.15 ETH',
-    date: 'Jun 10, 2023',
+    date: 'Jun 10, 2025',
     status: 'upcoming',
     participants: { current: 12, max: 16 },
     image: 'https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=2065&auto=format&fit=crop'
@@ -88,7 +88,7 @@ const allTournaments: TournamentCardProps[] = [
     game: 'Overwatch',
     prize: '$40,000',
     entryFee: '0.1 ETH',
-    date: 'May 5, 2023',
+    date: 'May 5, 2025',
     status: 'upcoming',
     participants: { current: 10, max: 12 },
     image: 'https://images.unsplash.com/photo-1519326844852-704caea5679e?q=80&w=2034&auto=format&fit=crop'
@@ -98,7 +98,7 @@ const allTournaments: TournamentCardProps[] = [
     title: 'Super Smash Bros Ultimate Cup',
     game: 'Super Smash Bros',
     prize: '$10,000',
-    date: 'Mar 20, 2023',
+    date: 'Mar 20, 2025',
     status: 'completed',
     participants: { current: 64, max: 64 },
     image: 'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?q=80&w=2070&auto=format&fit=crop'
