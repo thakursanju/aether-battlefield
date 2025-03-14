@@ -65,6 +65,6 @@ This demo focuses on demonstrating the core functionalities of:
 
 **Contact:**
 
-* Khushvinder Thakur: [your contact information]
+* Khushvinder Thakur: [gmail:sanjuthakur383838@gmail.com,github : https://github.com/thakursanju]
 
 **Note:** This is a demo project created for the ETHSF 2025 hackathon. It is not intended for production use.
