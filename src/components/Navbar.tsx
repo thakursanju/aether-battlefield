@@ -2,11 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { useWallet } from '@/contexts/WalletContext';
+import { Button } from '@/components/ui/button';
 
 const Navbar = () => {
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { address, isConnected, isConnecting, connectWallet, disconnectWallet } = useWallet();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -24,6 +27,11 @@ const Navbar = () => {
     { name: 'Tournaments', path: '/tournaments' },
     { name: 'Players', path: '/players' },
   ];
+
+  // Helper function to truncate addresses
+  const truncateAddress = (address: string) => {
+    return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+  };
 
   return (
     <nav
@@ -72,10 +80,25 @@ const Navbar = () => {
           ))}
         </div>
 
-        {/* Connect Wallet Button */}
-        <button className="hidden md:block px-6 py-2 rounded-full bg-primary text-white font-medium shadow-lg hover:opacity-90 transition-all">
-          Connect Wallet
-        </button>
+        {/* Wallet Button */}
+        {isConnected ? (
+          <Button 
+            variant="outline" 
+            onClick={disconnectWallet} 
+            className="hidden md:flex items-center px-4 py-2 rounded-full font-medium gap-2"
+          >
+            <span className="inline-block w-2 h-2 rounded-full bg-green-500"></span>
+            {address && truncateAddress(address)}
+          </Button>
+        ) : (
+          <Button 
+            className="hidden md:block px-6 py-2 rounded-full bg-primary text-white font-medium shadow-lg hover:opacity-90 transition-all" 
+            onClick={connectWallet}
+            disabled={isConnecting}
+          >
+            {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+          </Button>
+        )}
 
         {/* Mobile Menu Button */}
         <button 
@@ -126,9 +149,25 @@ const Navbar = () => {
               {item.name}
             </Link>
           ))}
-          <button className="w-full mt-2 px-6 py-2 rounded-full bg-primary text-white font-medium shadow-lg hover:opacity-90 transition-all">
-            Connect Wallet
-          </button>
+          
+          {isConnected ? (
+            <Button 
+              variant="outline" 
+              onClick={disconnectWallet} 
+              className="w-full mt-2 px-4 py-2 rounded-full font-medium flex items-center justify-center gap-2"
+            >
+              <span className="inline-block w-2 h-2 rounded-full bg-green-500"></span>
+              {address && truncateAddress(address)}
+            </Button>
+          ) : (
+            <Button 
+              className="w-full mt-2 px-6 py-2 rounded-full bg-primary text-white font-medium shadow-lg hover:opacity-90 transition-all"
+              onClick={connectWallet}
+              disabled={isConnecting}
+            >
+              {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+            </Button>
+          )}
         </div>
       </div>
     </nav>
