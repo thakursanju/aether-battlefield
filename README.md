@@ -49,7 +49,7 @@ This demo focuses on demonstrating the core functionalities of:
 
 **Getting Started (Demo):**
 
-1.  **Clone the Repository:** `git clone [repository URL]`
+1.  **Clone the Repository:** `git clone [https://github.com/YourUsername/AetherArena-ETHSF2025.git]`
 2.  **Install Dependencies:** `npm install` or `yarn install`
 3.  **Run the Application:** `npm start` or `yarn start`
 4.  **Interact with the Demo:** Follow the on-screen instructions to interact with the demo features.
