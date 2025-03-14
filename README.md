@@ -1,69 +1,70 @@
-# Welcome to your Lovable project
+# Aether Arena - ETHSF 2025 Hackathon Demo
 
-## Project info
+**A Decentralized Esports Platform Demo Inspired by Reactive Network, ZetaChain, and Gemmi.ai**
 
-**URL**: https://lovable.dev/projects/0354c9e3-6348-4c89-a266-074bcb4d36e1
+**Created by:** Khushvinder Thakur (19, India)
 
-## How can I edit this code?
+**Project Overview:**
 
-There are several ways of editing your application.
+Aether Arena is a demo project showcasing the core concepts of a decentralized esports platform. This project aims to demonstrate the feasibility of hosting and managing esports tournaments on the blockchain, with a focus on transparency, fairness, and Web3 social integration. This demo was built for the ETHSF 2025 hackathon and serves as a proof-of-concept inspired by the innovative approaches of Reactive Network and ZetaChain, and developed with the aid of Gemmi.ai.
 
-**Use Lovable**
+**Inspiration:**
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/0354c9e3-6348-4c89-a266-074bcb4d36e1) and start prompting.
+* **Reactive Network & ZetaChain:** Inspired by their cross-chain capabilities and innovative blockchain solutions.
+* **Gemmi.ai:** Used as a tool to help conceptualize and refine the project idea.
 
-Changes made via Lovable will be committed automatically to this repo.
+**Core Features (Demo):**
 
-**Use your preferred IDE**
+* **Simplified Soulbound Token (SBT) Creation:** A basic UI for users to create and display their player SBTs, representing their in-game identity and achievements.
+* **Basic Tournament Smart Contract:** A rudimentary smart contract demonstrating tournament creation and registration.
+* **Automated Prize Distribution (Simulated):** A visual representation of how prize distribution could be automated through smart contracts.
+* **XMTP Integration:** a basic implementation of XMTP for user to user messaging.
+* **Data Visualization:** Basic data display from The Graph or Dune analytics, to demonstrate the usage of on-chain data.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+**Key Technologies:**
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+* **Solidity:** For smart contract development.
+* **React.js:** For frontend development.
+* **Ethers.js/Web3.js:** For interacting with the blockchain.
+* **Polygon (or similar):** For blockchain deployment (demo purposes).
+* **XMTP:** for user to user messaging.
+* **The Graph/Dune Analytics:** for data retrieval.
 
-Follow these steps:
+**MVP (Minimum Viable Product) Focus:**
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+This demo focuses on demonstrating the core functionalities of:
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+1.  **Player Identity (SBTs):** Showcasing how players can establish their on-chain identity.
+2.  **Tournament Management (Basic):** Illustrating the fundamental mechanics of tournament creation.
+3.  **Automated Prize Distribution (Simulation):** Providing a visual representation of how prize distribution could be automated.
+4.  **Web3 Messaging:** basic user to user messaging using XMTP.
+5.  **Data display:** Basic data display from a data source.
 
-# Step 3: Install the necessary dependencies.
-npm i
+**Limitations (Demo):**
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+* This is a demo and does not represent a fully functional esports platform.
+* Smart contracts are simplified for demonstration purposes and may not be production-ready.
+* Features are limited to those achievable within the hackathon timeframe.
+* Gameplay is not implemented, the project is focused on the tournament and social aspects.
 
-**Edit a file directly in GitHub**
+**Getting Started (Demo):**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1.  **Clone the Repository:** `git clone [repository URL]`
+2.  **Install Dependencies:** `npm install` or `yarn install`
+3.  **Run the Application:** `npm start` or `yarn start`
+4.  **Interact with the Demo:** Follow the on-screen instructions to interact with the demo features.
 
-**Use GitHub Codespaces**
+**Future Development (Beyond Hackathon):**
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+* Implement full gameplay integration.
+* Enhance smart contract security and functionality.
+* Develop a more robust and user-friendly UI.
+* Integrate advanced data analytics and visualization.
+* Expand XMTP features.
+* Implement a full DAO.
 
-## What technologies are used for this project?
+**Contact:**
 
-This project is built with .
+* Khushvinder Thakur: [your contact information]
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/0354c9e3-6348-4c89-a266-074bcb4d36e1) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+**Note:** This is a demo project created for the ETHSF 2025 hackathon. It is not intended for production use.
