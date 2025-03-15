@@ -29,7 +29,6 @@ export interface TournamentCardProps {
   className?: string;
 }
 
-// Form schema
 const registrationSchema = z.object({
   username: z.string().min(3, {
     message: "Username must be at least 3 characters.",
@@ -42,7 +41,6 @@ const registrationSchema = z.object({
   }),
 });
 
-// Payment schema
 const paymentSchema = z.object({
   amount: z.string().min(1, {
     message: "Please enter the payment amount.",
@@ -70,7 +68,6 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
     completed: 'bg-yellow-100 text-yellow-700',
   };
 
-  // Set up form
   const form = useForm<z.infer<typeof registrationSchema>>({
     resolver: zodResolver(registrationSchema),
     defaultValues: {
@@ -80,7 +77,6 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
     },
   });
   
-  // Set up payment form
   const paymentForm = useForm<z.infer<typeof paymentSchema>>({
     resolver: zodResolver(paymentSchema),
     defaultValues: {
@@ -88,33 +84,27 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
     },
   });
 
-  // Format the date to be more readable
   const formattedDate = (() => {
     try {
-      // Check if date is already in ISO format, if not, assume it's in a readable format
       if (date.includes('-') || date.includes('T')) {
         return format(new Date(date), 'd MMMM yyyy');
       }
-      // If it's already in a readable format like "16 March 2025", return as is
       return date;
     } catch (error) {
       console.error("Error formatting date:", error);
-      return date; // Return original if parsing fails
+      return date;
     }
   })();
 
-  // Calculate time remaining for upcoming tournaments
   const [timeRemaining, setTimeRemaining] = useState<string | null>(null);
   const [progress, setProgress] = useState<number>(0);
   
   useEffect(() => {
-    // Only set up countdown for upcoming tournaments
     if (status !== 'upcoming') return;
     
     const tournamentDate = new Date(date);
     const now = new Date();
     
-    // Calculate initial time remaining
     const updateCountdown = () => {
       const now = new Date();
       const timeDiff = tournamentDate.getTime() - now.getTime();
@@ -125,12 +115,10 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
         return;
       }
       
-      // Calculate days, hours, minutes
       const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
       const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
       const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
       
-      // Format the countdown text
       let countdownText = '';
       if (days > 0) {
         countdownText = `${days}d ${hours}h ${minutes}m`;
@@ -142,14 +130,11 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
       
       setTimeRemaining(countdownText);
       
-      // Calculate progress (inverse - closer to date = higher progress)
-      // Assuming 30 days is the max display window
-      const maxWindow = 30 * 24 * 60 * 60 * 1000; // 30 days in ms
+      const maxWindow = 30 * 24 * 60 * 60 * 1000;
       const progressValue = Math.min(100, Math.max(0, 100 - (timeDiff / maxWindow) * 100));
       setProgress(progressValue);
     };
     
-    // Update immediately and then every minute
     updateCountdown();
     const interval = setInterval(updateCountdown, 60000);
     
@@ -168,54 +153,45 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
 
   const nextStep = () => {
     if (formStep === 0) {
-      setFormStep(1); // Move to payment step
+      setFormStep(1);
     } else if (formStep === 1) {
-      // Process payment and check wallet connection
-      if (isConnected) {
-        setFormStep(2); // Move to registration form
-      } else {
-        // Show connect wallet dialog
-        toast({
-          title: "Wallet Connection Required",
-          description: "Please connect your wallet to complete the payment.",
-          variant: "destructive",
-        });
-        connectWallet();
-      }
+      setFormStep(2);
     }
   };
 
   const handlePayment = (values: z.infer<typeof paymentSchema>) => {
     console.log(`Processing payment of ${values.amount} for tournament: ${id}`);
     
-    // Check if wallet is connected
-    if (isConnected) {
-      setFormStep(2); // Move to registration form
-    } else {
-      // Show connect wallet dialog
+    setFormStep(2);
+    
+    if (!isConnected) {
       toast({
-        title: "Wallet Connection Required",
-        description: "Please connect your wallet to complete the payment.",
-        variant: "destructive",
+        title: "Wallet Not Connected",
+        description: "You can connect your wallet later before the tournament starts.",
+        variant: "default",
       });
-      connectWallet();
     }
   };
 
   const handleRegister = (values: z.infer<typeof registrationSchema>) => {
-    // Here you would add the actual registration logic
     console.log(`Registering for tournament: ${id}`, values);
     
-    // Close dialog and show success toast
+    if (!isConnected) {
+      toast({
+        title: "Registration Complete",
+        description: `You've registered for ${title}. Remember to connect your wallet before the tournament starts.`,
+      });
+    } else {
+      toast({
+        title: "Registration Successful",
+        description: `You have successfully registered for ${title}`,
+      });
+    }
+    
     setIsDialogOpen(false);
     setFormStep(0);
     form.reset();
     paymentForm.reset();
-    
-    toast({
-      title: "Registration Successful",
-      description: `You have successfully registered for ${title}`,
-    });
   };
 
   return (
@@ -235,7 +211,6 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
           
-          {/* Status Badge */}
           <div
             className={cn(
               'absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-medium',
@@ -245,7 +220,6 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
             {status === 'live' ? 'LIVE NOW' : status === 'upcoming' ? 'UPCOMING' : 'COMPLETED'}
           </div>
           
-          {/* Game Badge */}
           <div className="absolute top-4 right-4 px-3 py-1 bg-background/80 backdrop-blur-sm rounded-full text-xs font-medium">
             {game}
           </div>
@@ -259,7 +233,6 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
             <div className="text-sm">{participants.current}/{participants.max} Players</div>
           </div>
           
-          {/* Add countdown for upcoming tournaments */}
           {status === 'upcoming' && timeRemaining && (
             <div className="mb-4">
               <div className="flex justify-between items-center mb-1">
@@ -270,7 +243,6 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
             </div>
           )}
           
-          {/* For live tournaments, show a pulsing indicator */}
           {status === 'live' && (
             <div className="mb-4 flex items-center">
               <span className="h-2.5 w-2.5 bg-green-500 rounded-full mr-2 animate-pulse"></span>
@@ -301,7 +273,6 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
         </div>
       </div>
 
-      {/* Tournament Details Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={(open) => {
         setIsDialogOpen(open);
         if (!open) {
@@ -407,7 +378,16 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
                     </div>
                   ) : (
                     <div className="mt-2 p-2 bg-amber-50 rounded border border-amber-200 text-amber-700 text-sm">
-                      Wallet not connected. You'll need to connect your wallet to proceed.
+                      <div className="flex flex-col gap-2">
+                        <span>Wallet not connected. You can connect now or later.</span>
+                        <Button 
+                          type="button" 
+                          onClick={connectWallet} 
+                          className="bg-amber-600 hover:bg-amber-700 text-white"
+                        >
+                          Connect Wallet
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -482,6 +462,21 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
                     </FormItem>
                   )}
                 />
+                
+                {!isConnected && (
+                  <div className="p-3 bg-blue-50 rounded border border-blue-200 text-blue-700 text-sm mt-4">
+                    <p className="mb-2">You haven't connected your wallet yet. You can still register now and connect your wallet later.</p>
+                    <Button 
+                      type="button" 
+                      onClick={connectWallet} 
+                      variant="outline" 
+                      size="sm" 
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      Connect Wallet
+                    </Button>
+                  </div>
+                )}
                 
                 <DialogFooter>
                   <Button type="button" variant="outline" onClick={() => setFormStep(1)}>Back</Button>
