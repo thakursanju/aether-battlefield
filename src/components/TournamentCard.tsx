@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
+import { format, parseISO } from 'date-fns';
 
 export interface TournamentCardProps {
   id: string;
@@ -36,6 +37,21 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
     live: 'bg-green-100 text-green-700',
     completed: 'bg-yellow-100 text-yellow-700',
   };
+
+  // Format the date to be more readable
+  const formattedDate = (() => {
+    try {
+      // Check if date is already in ISO format, if not, assume it's in a readable format
+      if (date.includes('-') || date.includes('T')) {
+        return format(new Date(date), 'd MMMM yyyy');
+      }
+      // If it's already in a readable format like "May 15, 2025", return as is
+      return date;
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return date; // Return original if parsing fails
+    }
+  })();
 
   // Calculate time remaining for upcoming tournaments
   const [timeRemaining, setTimeRemaining] = useState<string | null>(null);
@@ -126,7 +142,7 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
         <h3 className="text-xl font-bold mb-2 line-clamp-1">{title}</h3>
         
         <div className="flex items-center justify-between mb-4">
-          <div className="text-sm text-muted-foreground">{date}</div>
+          <div className="text-sm text-muted-foreground">{formattedDate}</div>
           <div className="text-sm">{participants.current}/{participants.max} Players</div>
         </div>
         
