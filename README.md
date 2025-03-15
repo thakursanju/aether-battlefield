@@ -5,8 +5,8 @@
 **Created by:** Khushvinder Thakur (19, India)
 
 **Project Overview:**
-
-Aether Arena is a demo project showcasing the core concepts of a decentralized esports platform. This project aims to demonstrate the feasibility of hosting and managing esports tournaments on the blockchain, with a focus on transparency, fairness, and Web3 social integration. This demo was built for the ETHSF 2025 hackathon and serves as a proof-of-concept inspired by the innovative approaches of Reactive Network and ZetaChain, and developed with the aid of Gemmi.ai.
+site link : https://eloquent-dolphin-fb20fe.netlify.app/
+Aether Arena is a demo project showcasing the core concepts of a decentralized esports platform. with metamask featuresThis project aims to demonstrate the feasibility of hosting and managing esports tournaments on the blockchain, with a focus on transparency, fairness, and Web3 social integration. This demo was built for the ETHSF 2025 hackathon and serves as a proof-of-concept inspired by the innovative approaches of Reactive Network and ZetaChain, and developed with the aid of Gemmi.ai.
 
 **Inspiration:**
 
@@ -53,7 +53,7 @@ This demo focuses on demonstrating the core functionalities of:
 2.  **Install Dependencies:** `npm install` or `yarn install`
 3.  **Run the Application:** `npm start` or `yarn start`
 4.  **Interact with the Demo:** Follow the on-screen instructions to interact with the demo features.
-
+5.  ** site link : https://eloquent-dolphin-fb20fe.netlify.app/
 **Future Development (Beyond Hackathon):**
 
 * Implement full gameplay integration.
