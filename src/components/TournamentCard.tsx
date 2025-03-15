@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
@@ -43,6 +42,13 @@ const registrationSchema = z.object({
   }),
 });
 
+// Payment schema
+const paymentSchema = z.object({
+  amount: z.string().min(1, {
+    message: "Please enter the payment amount.",
+  }),
+});
+
 const TournamentCard: React.FC<TournamentCardProps> = ({
   id,
   title,
@@ -71,6 +77,14 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
       username: "",
       email: "",
       agreeToRules: false,
+    },
+  });
+  
+  // Set up payment form
+  const paymentForm = useForm<z.infer<typeof paymentSchema>>({
+    resolver: zodResolver(paymentSchema),
+    defaultValues: {
+      amount: entryFee ? entryFee.replace(/[^0-9.]/g, '') : "",
     },
   });
 
@@ -144,17 +158,7 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
 
   const handleButtonClick = () => {
     if (status === 'upcoming') {
-      if (isConnected) {
-        setIsDialogOpen(true);
-      } else {
-        // Show connect wallet dialog
-        toast({
-          title: "Wallet Connection Required",
-          description: "Please connect your wallet to register for tournaments.",
-          variant: "destructive",
-        });
-        connectWallet();
-      }
+      setIsDialogOpen(true);
     } else if (status === 'live') {
       window.open(`/tournaments/${id}/watch`, '_blank');
     } else {
@@ -163,7 +167,39 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
   };
 
   const nextStep = () => {
-    setFormStep(1);
+    if (formStep === 0) {
+      setFormStep(1); // Move to payment step
+    } else if (formStep === 1) {
+      // Process payment and check wallet connection
+      if (isConnected) {
+        setFormStep(2); // Move to registration form
+      } else {
+        // Show connect wallet dialog
+        toast({
+          title: "Wallet Connection Required",
+          description: "Please connect your wallet to complete the payment.",
+          variant: "destructive",
+        });
+        connectWallet();
+      }
+    }
+  };
+
+  const handlePayment = (values: z.infer<typeof paymentSchema>) => {
+    console.log(`Processing payment of ${values.amount} for tournament: ${id}`);
+    
+    // Check if wallet is connected
+    if (isConnected) {
+      setFormStep(2); // Move to registration form
+    } else {
+      // Show connect wallet dialog
+      toast({
+        title: "Wallet Connection Required",
+        description: "Please connect your wallet to complete the payment.",
+        variant: "destructive",
+      });
+      connectWallet();
+    }
   };
 
   const handleRegister = (values: z.infer<typeof registrationSchema>) => {
@@ -174,6 +210,7 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
     setIsDialogOpen(false);
     setFormStep(0);
     form.reset();
+    paymentForm.reset();
     
     toast({
       title: "Registration Successful",
@@ -270,17 +307,20 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
         if (!open) {
           setFormStep(0);
           form.reset();
+          paymentForm.reset();
         }
       }}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
             <DialogDescription className="pt-2">
-              {formStep === 0 ? "Tournament Details" : "Registration Form"}
+              {formStep === 0 ? "Tournament Details" : 
+               formStep === 1 ? "Payment Information" : 
+               "Registration Form"}
             </DialogDescription>
           </DialogHeader>
           
-          {formStep === 0 ? (
+          {formStep === 0 && (
             <div className="space-y-4 my-4">
               <div className="aspect-[16/9] overflow-hidden rounded-md">
                 <img src={image} alt={title} className="w-full h-full object-cover" />
@@ -327,13 +367,60 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
                   <p className="font-medium">{timeRemaining}</p>
                 </div>
               )}
-              
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Connected Wallet</p>
-                <p className="font-medium">{address ? `${address.substring(0, 6)}...${address.substring(address.length - 4)}` : 'Not connected'}</p>
-              </div>
             </div>
-          ) : (
+          )}
+
+          {formStep === 1 && (
+            <Form {...paymentForm}>
+              <form onSubmit={paymentForm.handleSubmit(handlePayment)} className="space-y-4 py-4">
+                <FormField
+                  control={paymentForm.control}
+                  name="amount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Payment Amount</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2">$</span>
+                          <Input 
+                            type="number" 
+                            placeholder="0.00" 
+                            className="pl-8" 
+                            {...field} 
+                          />
+                        </div>
+                      </FormControl>
+                      <FormDescription>
+                        Entry fee for tournament: {entryFee || 'Free'}
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="mt-4">
+                  <p className="text-sm text-muted-foreground mb-1">Payment Method</p>
+                  <p className="text-sm font-medium">Cryptocurrency (ETH)</p>
+                  {isConnected ? (
+                    <div className="mt-2 p-2 bg-green-50 rounded border border-green-200 text-green-700 text-sm">
+                      Wallet connected: {address ? `${address.substring(0, 6)}...${address.substring(address.length - 4)}` : ''}
+                    </div>
+                  ) : (
+                    <div className="mt-2 p-2 bg-amber-50 rounded border border-amber-200 text-amber-700 text-sm">
+                      Wallet not connected. You'll need to connect your wallet to proceed.
+                    </div>
+                  )}
+                </div>
+                
+                <DialogFooter className="mt-6">
+                  <Button type="button" variant="outline" onClick={() => setFormStep(0)}>Back</Button>
+                  <Button type="submit">Continue to Registration</Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          )}
+          
+          {formStep === 2 && (
             <Form {...form}>
               <form onSubmit={form.handleSubmit(handleRegister)} className="space-y-4 py-4">
                 <FormField
@@ -397,7 +484,7 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
                 />
                 
                 <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => setFormStep(0)}>Back</Button>
+                  <Button type="button" variant="outline" onClick={() => setFormStep(1)}>Back</Button>
                   <Button type="submit">Complete Registration</Button>
                 </DialogFooter>
               </form>
