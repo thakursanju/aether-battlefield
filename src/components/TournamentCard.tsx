@@ -2,9 +2,17 @@
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { useWallet } from '@/contexts/WalletContext';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { toast } from '@/hooks/use-toast';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 export interface TournamentCardProps {
   id: string;
@@ -22,6 +30,19 @@ export interface TournamentCardProps {
   className?: string;
 }
 
+// Form schema
+const registrationSchema = z.object({
+  username: z.string().min(3, {
+    message: "Username must be at least 3 characters.",
+  }),
+  email: z.string().email({
+    message: "Please enter a valid email address.",
+  }),
+  agreeToRules: z.boolean().refine(val => val === true, {
+    message: "You must agree to tournament rules.",
+  }),
+});
+
 const TournamentCard: React.FC<TournamentCardProps> = ({
   id,
   title,
@@ -35,11 +56,23 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
   className,
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [formStep, setFormStep] = useState(0);
+  const { address, isConnected, connectWallet } = useWallet();
   const statusColors = {
     upcoming: 'bg-muted text-muted-foreground',
     live: 'bg-green-100 text-green-700',
     completed: 'bg-yellow-100 text-yellow-700',
   };
+
+  // Set up form
+  const form = useForm<z.infer<typeof registrationSchema>>({
+    resolver: zodResolver(registrationSchema),
+    defaultValues: {
+      username: "",
+      email: "",
+      agreeToRules: false,
+    },
+  });
 
   // Format the date to be more readable
   const formattedDate = (() => {
@@ -48,7 +81,7 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
       if (date.includes('-') || date.includes('T')) {
         return format(new Date(date), 'd MMMM yyyy');
       }
-      // If it's already in a readable format like "May 15, 2025", return as is
+      // If it's already in a readable format like "16 March 2025", return as is
       return date;
     } catch (error) {
       console.error("Error formatting date:", error);
@@ -111,7 +144,17 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
 
   const handleButtonClick = () => {
     if (status === 'upcoming') {
-      setIsDialogOpen(true);
+      if (isConnected) {
+        setIsDialogOpen(true);
+      } else {
+        // Show connect wallet dialog
+        toast({
+          title: "Wallet Connection Required",
+          description: "Please connect your wallet to register for tournaments.",
+          variant: "destructive",
+        });
+        connectWallet();
+      }
     } else if (status === 'live') {
       window.open(`/tournaments/${id}/watch`, '_blank');
     } else {
@@ -119,11 +162,23 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
     }
   };
 
-  const handleRegister = () => {
+  const nextStep = () => {
+    setFormStep(1);
+  };
+
+  const handleRegister = (values: z.infer<typeof registrationSchema>) => {
     // Here you would add the actual registration logic
-    console.log(`Registering for tournament: ${id}`);
+    console.log(`Registering for tournament: ${id}`, values);
+    
+    // Close dialog and show success toast
     setIsDialogOpen(false);
-    // You could add toast notifications or other feedback here
+    setFormStep(0);
+    form.reset();
+    
+    toast({
+      title: "Registration Successful",
+      description: `You have successfully registered for ${title}`,
+    });
   };
 
   return (
@@ -210,67 +265,151 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
       </div>
 
       {/* Tournament Details Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={isDialogOpen} onOpenChange={(open) => {
+        setIsDialogOpen(open);
+        if (!open) {
+          setFormStep(0);
+          form.reset();
+        }
+      }}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
             <DialogDescription className="pt-2">
-              Tournament Details
+              {formStep === 0 ? "Tournament Details" : "Registration Form"}
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-4 my-4">
-            <div className="aspect-[16/9] overflow-hidden rounded-md">
-              <img src={image} alt={title} className="w-full h-full object-cover" />
+          {formStep === 0 ? (
+            <div className="space-y-4 my-4">
+              <div className="aspect-[16/9] overflow-hidden rounded-md">
+                <img src={image} alt={title} className="w-full h-full object-cover" />
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Game</p>
+                  <p className="font-medium">{game}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Date</p>
+                  <p className="font-medium">{formattedDate}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Prize Pool</p>
+                  <p className="font-medium text-primary">{prize}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Entry Fee</p>
+                  <p className="font-medium">{entryFee || 'Free'}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Participants</p>
+                  <p className="font-medium">{participants.current}/{participants.max}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Status</p>
+                  <p className="font-medium capitalize">{status}</p>
+                </div>
+              </div>
+              
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Tournament Rules</p>
+                <p className="text-sm">
+                  Players must follow all game-specific rules and tournament guidelines. 
+                  Fair play is expected and any form of cheating will result in disqualification.
+                </p>
+              </div>
+              
+              {status === 'upcoming' && timeRemaining && (
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Starts in</p>
+                  <p className="font-medium">{timeRemaining}</p>
+                </div>
+              )}
+              
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Connected Wallet</p>
+                <p className="font-medium">{address ? `${address.substring(0, 6)}...${address.substring(address.length - 4)}` : 'Not connected'}</p>
+              </div>
             </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Game</p>
-                <p className="font-medium">{game}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Date</p>
-                <p className="font-medium">{formattedDate}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Prize Pool</p>
-                <p className="font-medium text-primary">{prize}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Entry Fee</p>
-                <p className="font-medium">{entryFee || 'Free'}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Participants</p>
-                <p className="font-medium">{participants.current}/{participants.max}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Status</p>
-                <p className="font-medium capitalize">{status}</p>
-              </div>
-            </div>
-            
-            <div>
-              <p className="text-sm text-muted-foreground mb-1">Tournament Rules</p>
-              <p className="text-sm">
-                Players must follow all game-specific rules and tournament guidelines. 
-                Fair play is expected and any form of cheating will result in disqualification.
-              </p>
-            </div>
-            
-            {status === 'upcoming' && timeRemaining && (
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Starts in</p>
-                <p className="font-medium">{timeRemaining}</p>
-              </div>
-            )}
-          </div>
+          ) : (
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleRegister)} className="space-y-4 py-4">
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Gamer Tag</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Your in-game name" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        This will be displayed to other participants.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="your.email@example.com" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        We'll send tournament updates to this email.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="agreeToRules"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                      <FormControl>
+                        <input
+                          type="checkbox"
+                          className="form-checkbox h-4 w-4 mt-1"
+                          checked={field.value}
+                          onChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>
+                          I agree to the tournament rules and fair play guidelines
+                        </FormLabel>
+                        <FormDescription>
+                          Breaking these rules may result in disqualification
+                        </FormDescription>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={() => setFormStep(0)}>Back</Button>
+                  <Button type="submit">Complete Registration</Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          )}
           
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleRegister}>Confirm Registration</Button>
-          </DialogFooter>
+          {formStep === 0 && (
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+              <Button onClick={nextStep}>Register Now</Button>
+            </DialogFooter>
+          )}
         </DialogContent>
       </Dialog>
     </>
