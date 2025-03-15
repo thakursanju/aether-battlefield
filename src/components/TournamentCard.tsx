@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
 import { format, parseISO } from 'date-fns';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 export interface TournamentCardProps {
   id: string;
@@ -32,6 +34,7 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
   image,
   className,
 }) => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const statusColors = {
     upcoming: 'bg-muted text-muted-foreground',
     live: 'bg-green-100 text-green-700',
@@ -106,84 +109,171 @@ const TournamentCard: React.FC<TournamentCardProps> = ({
     return () => clearInterval(interval);
   }, [date, status]);
 
+  const handleButtonClick = () => {
+    if (status === 'upcoming') {
+      setIsDialogOpen(true);
+    } else if (status === 'live') {
+      window.open(`/tournaments/${id}/watch`, '_blank');
+    } else {
+      window.open(`/tournaments/${id}/results`, '_blank');
+    }
+  };
+
+  const handleRegister = () => {
+    // Here you would add the actual registration logic
+    console.log(`Registering for tournament: ${id}`);
+    setIsDialogOpen(false);
+    // You could add toast notifications or other feedback here
+  };
+
   return (
-    <div
-      className={cn(
-        'glass-card rounded-2xl overflow-hidden transition-all duration-300 hover:translate-y-[-4px] group',
-        className
-      )}
-    >
-      <div className="aspect-[16/9] overflow-hidden relative">
-        <img
-          src={image}
-          alt={title}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-          loading="lazy"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
-        
-        {/* Status Badge */}
-        <div
-          className={cn(
-            'absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-medium',
-            statusColors[status]
-          )}
-        >
-          {status === 'live' ? 'LIVE NOW' : status === 'upcoming' ? 'UPCOMING' : 'COMPLETED'}
-        </div>
-        
-        {/* Game Badge */}
-        <div className="absolute top-4 right-4 px-3 py-1 bg-background/80 backdrop-blur-sm rounded-full text-xs font-medium">
-          {game}
-        </div>
-      </div>
-      
-      <div className="p-6">
-        <h3 className="text-xl font-bold mb-2 line-clamp-1">{title}</h3>
-        
-        <div className="flex items-center justify-between mb-4">
-          <div className="text-sm text-muted-foreground">{formattedDate}</div>
-          <div className="text-sm">{participants.current}/{participants.max} Players</div>
-        </div>
-        
-        {/* Add countdown for upcoming tournaments */}
-        {status === 'upcoming' && timeRemaining && (
-          <div className="mb-4">
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-xs text-muted-foreground">Starts in</span>
-              <span className="text-xs font-medium">{timeRemaining}</span>
-            </div>
-            <Progress value={progress} className="h-1.5" />
-          </div>
+    <>
+      <div
+        className={cn(
+          'glass-card rounded-2xl overflow-hidden transition-all duration-300 hover:translate-y-[-4px] group',
+          className
         )}
-        
-        {/* For live tournaments, show a pulsing indicator */}
-        {status === 'live' && (
-          <div className="mb-4 flex items-center">
-            <span className="h-2.5 w-2.5 bg-green-500 rounded-full mr-2 animate-pulse"></span>
-            <span className="text-sm text-green-600 font-medium">Tournament in progress</span>
-          </div>
-        )}
-        
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="text-xs text-muted-foreground mb-1">Prize Pool</div>
-            <div className="text-lg font-bold text-primary">{prize}</div>
+      >
+        <div className="aspect-[16/9] overflow-hidden relative">
+          <img
+            src={image}
+            alt={title}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+          
+          {/* Status Badge */}
+          <div
+            className={cn(
+              'absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-medium',
+              statusColors[status]
+            )}
+          >
+            {status === 'live' ? 'LIVE NOW' : status === 'upcoming' ? 'UPCOMING' : 'COMPLETED'}
           </div>
           
-          {entryFee && (
-            <div className="text-right">
-              <div className="text-xs text-muted-foreground mb-1">Entry Fee</div>
-              <div className="text-sm">{entryFee}</div>
-            </div>
-          )}
+          {/* Game Badge */}
+          <div className="absolute top-4 right-4 px-3 py-1 bg-background/80 backdrop-blur-sm rounded-full text-xs font-medium">
+            {game}
+          </div>
         </div>
         
-        <button className="w-full mt-5 px-4 py-2.5 rounded-full bg-primary text-white font-medium transition-all hover:opacity-90">
-          {status === 'upcoming' ? 'Register Now' : status === 'live' ? 'Watch Live' : 'View Results'}
-        </button>
+        <div className="p-6">
+          <h3 className="text-xl font-bold mb-2 line-clamp-1">{title}</h3>
+          
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-sm text-muted-foreground">{formattedDate}</div>
+            <div className="text-sm">{participants.current}/{participants.max} Players</div>
+          </div>
+          
+          {/* Add countdown for upcoming tournaments */}
+          {status === 'upcoming' && timeRemaining && (
+            <div className="mb-4">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-xs text-muted-foreground">Starts in</span>
+                <span className="text-xs font-medium">{timeRemaining}</span>
+              </div>
+              <Progress value={progress} className="h-1.5" />
+            </div>
+          )}
+          
+          {/* For live tournaments, show a pulsing indicator */}
+          {status === 'live' && (
+            <div className="mb-4 flex items-center">
+              <span className="h-2.5 w-2.5 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+              <span className="text-sm text-green-600 font-medium">Tournament in progress</span>
+            </div>
+          )}
+          
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-xs text-muted-foreground mb-1">Prize Pool</div>
+              <div className="text-lg font-bold text-primary">{prize}</div>
+            </div>
+            
+            {entryFee && (
+              <div className="text-right">
+                <div className="text-xs text-muted-foreground mb-1">Entry Fee</div>
+                <div className="text-sm">{entryFee}</div>
+              </div>
+            )}
+          </div>
+          
+          <button 
+            className="w-full mt-5 px-4 py-2.5 rounded-full bg-primary text-white font-medium transition-all hover:opacity-90"
+            onClick={handleButtonClick}
+          >
+            {status === 'upcoming' ? 'Register Now' : status === 'live' ? 'Watch Live' : 'View Results'}
+          </button>
+        </div>
       </div>
-    </div>
+
+      {/* Tournament Details Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>{title}</DialogTitle>
+            <DialogDescription className="pt-2">
+              Tournament Details
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 my-4">
+            <div className="aspect-[16/9] overflow-hidden rounded-md">
+              <img src={image} alt={title} className="w-full h-full object-cover" />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-muted-foreground">Game</p>
+                <p className="font-medium">{game}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Date</p>
+                <p className="font-medium">{formattedDate}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Prize Pool</p>
+                <p className="font-medium text-primary">{prize}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Entry Fee</p>
+                <p className="font-medium">{entryFee || 'Free'}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Participants</p>
+                <p className="font-medium">{participants.current}/{participants.max}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Status</p>
+                <p className="font-medium capitalize">{status}</p>
+              </div>
+            </div>
+            
+            <div>
+              <p className="text-sm text-muted-foreground mb-1">Tournament Rules</p>
+              <p className="text-sm">
+                Players must follow all game-specific rules and tournament guidelines. 
+                Fair play is expected and any form of cheating will result in disqualification.
+              </p>
+            </div>
+            
+            {status === 'upcoming' && timeRemaining && (
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Starts in</p>
+                <p className="font-medium">{timeRemaining}</p>
+              </div>
+            )}
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleRegister}>Confirm Registration</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
